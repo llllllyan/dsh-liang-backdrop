@@ -1,7 +1,7 @@
 {
   "name": "dsh-liang-backdrop",
   "repository": { "type": "git", "url": "git+https://github.com/llllllyan/dsh-liang-backdrop.git" },
-  "version": "1.0.0",
+  "version": "1.0.1",
   "type": "module",
   "description": "梁圣滑杆背景：把「梁圣 → 小梁」的六张状态图做成 DSH 窗口背景，用可拖拽面板控制等级、大小、位置、浓度，并可收起。",
   "keywords": [
