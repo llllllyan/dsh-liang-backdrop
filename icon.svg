@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="Liang ladder backdrop">
+  <rect width="32" height="32" rx="8" fill="#1155cc"/>
+  <circle cx="16" cy="11.5" r="4.2" fill="none" stroke="#ffffff" stroke-width="1.9" stroke-opacity="0.92"/>
+  <path d="M6 23.5h20" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-opacity="0.45"/>
+  <circle cx="12" cy="23.5" r="3.6" fill="#ffffff"/>
+  <circle cx="24" cy="23.5" r="1.5" fill="#ffffff" fill-opacity="0.7"/>
+</svg>

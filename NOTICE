@@ -1,0 +1,28 @@
+# NOTICE — third-party artwork
+
+This package ships **no images**. It displays six portraits that live in another
+project:
+
+- Source: https://github.com/Lichtspektrum/liang-intensity-calibrator
+  (`public/frames/frame-00.webp`, `frame-06.webp`, `frame-12.webp`,
+  `frame-18.webp`, `frame-24.webp`, `frame-30.webp`)
+- Stage names and stage boundaries: same project, `src/score-domain.ts`
+  (31 frames over −15 … +15, six per stage)
+
+That project releases its **source code** under the MIT license. Its README states
+explicitly that the portrait assets in `media/` and `public/frames/` are **not**
+shared under MIT, and that you must confirm you hold the relevant portrait and
+asset rights before reusing or redistributing them.
+
+Therefore:
+
+1. This package's tarball contains code only; `files` excludes `assets/frames`.
+2. At runtime the plugin fetches the six frames from the upstream URLs above on
+   first use and caches them under `.frames-cache/` inside the installed package
+   (or serves a local `assets/frames/` copy when one exists, e.g. a dev checkout).
+3. If you republish, mirror, or ship this plugin in a product, you are the one
+   responsible for clearing the portrait rights. To sidestep the question, point
+   `FRAME_SOURCE` in `index.js` at your own six square images with the same names.
+
+Nothing here grants you rights to the portraits. Attribution is provided, but
+attribution is not a substitute for permission.

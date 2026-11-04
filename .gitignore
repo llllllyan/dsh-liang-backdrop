@@ -1,0 +1,5 @@
+node_modules/
+.frames-cache/
+assets/frames/
+*.log
+.DS_Store

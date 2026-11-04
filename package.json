@@ -1,0 +1,47 @@
+{
+  "name": "dsh-liang-backdrop",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "梁圣滑杆背景：把「梁圣 → 小梁」的六张状态图做成 DSH 窗口背景，用可拖拽面板控制等级、大小、位置、浓度，并可收起。",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "backdrop",
+    "wallpaper",
+    "desktop-pet",
+    "meme",
+    "liang"
+  ],
+  "license": "MIT",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-conversation",
+        "@deepseek-ai/dsh-client-ui-layout",
+        "@deepseek-ai/dsh-client-locale"
+      ]
+    }
+  }
+}
