@@ -3,3 +3,4 @@ node_modules/
 assets/frames/
 *.log
 .DS_Store
+*.tgz
