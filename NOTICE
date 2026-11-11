@@ -23,6 +23,8 @@ Therefore:
 3. If you republish, mirror, or ship this plugin in a product, you are the one
    responsible for clearing the portrait rights. To sidestep the question, point
    `FRAME_SOURCE` in `index.js` at your own six square images with the same names.
+4. The screenshots in `screenshots/` (used by the README) also show those six
+   upstream portraits, purely to illustrate the plugin's UI.
 
 Nothing here grants you rights to the portraits. Attribution is provided, but
 attribution is not a substitute for permission.

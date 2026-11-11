@@ -1,6 +1,7 @@
 node_modules/
 .frames-cache/
 assets/frames/
+_tools/preview/vendor/
 *.log
 .DS_Store
 *.tgz

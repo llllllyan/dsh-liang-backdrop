@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dsh-liang-backdrop · preview</title>
+<style>
+  /* DSH light-theme tokens, copied from the shipped ui-theme base.css so the
+     preview renders the panel exactly as the shell does. */
+  :root {
+    --dsw-static-neutral-bluish-00: #fff;
+    --dsw-static-neutral-bluish-50: #f9fafb;
+    --dsw-static-neutral-bluish-55: #f5f7fa;
+    --dsw-static-neutral-bluish-75: #f1f3f5;
+    --dsw-static-neutral-bluish-90: #edf0f4;
+    --dsw-static-neutral-bluish-100: #ebeef2;
+    --dsw-static-neutral-bluish-150: #e9ecf2;
+    --dsw-static-neutral-bluish-310: #cad2db;
+    --dsw-static-neutral-bluish-400: #adb2b8;
+    --dsw-static-neutral-bluish-500: #979da6;
+    --dsw-static-neutral-bluish-700: #61666b;
+    --dsw-static-neutral-bluish-750: #43454a;
+    --dsw-static-neutral-bluish-800: #353638;
+    --dsw-static-neutral-bluish-900: #1b1b1c;
+    --dsw-static-neutral-bluish-1000: #0f1115;
+
+    --dsw-alias-bg-base: var(--dsw-static-neutral-bluish-00);
+    --dsw-alias-bg-overlay: var(--dsw-static-neutral-bluish-150);
+    --dsw-alias-bg-layer-1: var(--dsw-static-neutral-bluish-00);
+    --dsw-alias-bg-layer-2: var(--dsw-static-neutral-bluish-00);
+    --dsw-alias-label-primary: var(--dsw-static-neutral-bluish-1000);
+    --dsw-alias-label-secondary: var(--dsw-static-neutral-bluish-700);
+    --dsw-alias-border-l1: #0000000a;
+    --dsw-alias-border-l2: #0000001a;
+    --dsw-alias-brand-primary: var(--dsw-static-neutral-bluish-1000);
+  }
+
+  html, body { height: 100%; margin: 0; }
+  body {
+    background:
+      radial-gradient(1100px 680px at 72% 46%, #ffffff 0%, rgba(255, 255, 255, 0) 72%),
+      linear-gradient(180deg, #fbfcfe 0%, #f1f4f9 100%);
+    color: var(--dsw-alias-label-primary);
+    font-family: "Segoe UI", system-ui, -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif;
+    overflow: hidden;
+  }
+  #root { position: relative; width: 100%; height: 100%; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="/vendor/react.js"></script>
+<script src="/vendor/react-dom.js"></script>
+<script>
+  // ?lang=auto|zh|en sets the panel language preference, ?system=zh|en sets the
+  // shell locale, ?level=0..5 picks the stage, ?size=14..76 the portrait size.
+  const params = new URLSearchParams(location.search);
+  const requested = params.get('lang') || 'auto';
+  const lang = ['auto', 'zh', 'en'].includes(requested) ? requested : 'auto';
+  const system = params.get('system') === 'zh' ? 'zh' : 'en';
+
+  localStorage.setItem('dsh.liang-backdrop:v1', JSON.stringify({
+    level: Number(params.get('level') || 3),
+    reverse: true,
+    strength: Number(params.get('strength') || 2),
+    size: Number(params.get('size') || 66),
+    px: Number(params.get('px') || 0.56),
+    py: Number(params.get('py') || 0.5),
+    collapsed: params.get('collapsed') === '1',
+    x: null,
+    y: null,
+    lang,
+  }));
+
+  const localeStub = {
+    register: () => () => {},
+    bind: () => (key) => key,
+    subscribe: () => () => {},
+    getSnapshot: () => ({ active: system, locales: [{ id: 'zh' }, { id: 'en' }], revision: 1 }),
+  };
+
+  const mounted = [];
+  window.__ModuleLoader__ = {
+    load({ factory }) {
+      const mod = factory((name) => {
+        if (name === 'react') return window.React;
+        throw new Error(`unsupported require: ${name}`);
+      });
+
+      const ctx = {
+        effect: (fn) => { fn(); return () => {}; },
+        locale: localeStub,
+        slots: {
+          inject: (name, run) => run(),
+          register: (spec, Component) => {
+            mounted.push({ spec, Component });
+            return () => {};
+          },
+        },
+      };
+
+      mod.apply(ctx);
+
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(mounted.map(({ spec, Component }, index) =>
+        React.createElement(Component, { ctx, key: spec.id || index })));
+    },
+  };
+</script>
+<script src="/client.js"></script>
+</body>
+</html>

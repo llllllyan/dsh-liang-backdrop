@@ -11,12 +11,12 @@ window.__ModuleLoader__.load({
     // The six named stages only. Each keyframe is the first frame of its band in
     // the source scale (SCORES_PER_STAGE = 6 over -15 … +15).
     const LEVELS = [
-      { name: '小难梁', frame: 0 },
-      { name: '牢梁', frame: 6 },
-      { name: '梁子', frame: 12 },
-      { name: '梁圣', frame: 18 },
-      { name: '梁神', frame: 24 },
-      { name: '梁祖', frame: 30 },
+      { key: 'stage.0', frame: 0 },
+      { key: 'stage.1', frame: 6 },
+      { key: 'stage.2', frame: 12 },
+      { key: 'stage.3', frame: 18 },
+      { key: 'stage.4', frame: 24 },
+      { key: 'stage.5', frame: 30 },
     ];
     const TOTAL = LEVELS.length;
 
@@ -34,6 +34,8 @@ window.__ModuleLoader__.load({
       collapsed: false,
       x: null,
       y: null,
+      // 'auto' follows the DSH locale; 'zh' / 'en' pin the panel language.
+      lang: 'auto',
     };
 
     function clampNumber(value, min, max) {
@@ -79,6 +81,7 @@ window.__ModuleLoader__.load({
           collapsed: (parsed && parsed.collapsed) === true,
           x: Number.isFinite(parsed && parsed.x) ? parsed.x : null,
           y: Number.isFinite(parsed && parsed.y) ? parsed.y : null,
+          lang: ['auto', 'zh', 'en'].includes(parsed && parsed.lang) ? parsed.lang : DEFAULT_STATE.lang,
         };
       } catch {
         return { ...DEFAULT_STATE };
@@ -133,6 +136,12 @@ window.__ModuleLoader__.load({
       return `${FRAME_BASE}frame-${String(frame).padStart(2, '0')}.webp`;
     }
 
+    /**
+     * Panel copy. Registered into the DSH locale registry (so the marketplace
+     * label and screen readers follow the shell), and also read directly by the
+     * panel so its own language switch can override the shell without a reload.
+     * Keep both dictionaries key-for-key identical.
+     */
     const ZH = {
       'dock.label': '梁圣滑杆背景',
       'slider.aria': '背景等级',
@@ -149,6 +158,19 @@ window.__ModuleLoader__.load({
       'strength.1': '中',
       'strength.2': '浓',
       'badge.level': '/6 级',
+      'lang.title': '语言：自动（跟随 DSH）→ 中文 → English',
+      'lang.auto': 'A',
+      'lang.zh': '中',
+      'lang.en': 'EN',
+      'lang.name.auto': '自动',
+      'lang.name.zh': '中文',
+      'lang.name.en': 'English',
+      'stage.0': '小难梁',
+      'stage.1': '牢梁',
+      'stage.2': '梁子',
+      'stage.3': '梁圣',
+      'stage.4': '梁神',
+      'stage.5': '梁祖',
     };
 
     const EN = {
@@ -167,7 +189,43 @@ window.__ModuleLoader__.load({
       'strength.1': 'Medium',
       'strength.2': 'Strong',
       'badge.level': '/6',
+      'lang.title': 'Language: Auto (follow DSH) → 中文 → English',
+      'lang.auto': 'A',
+      'lang.zh': '中',
+      'lang.en': 'EN',
+      'lang.name.auto': 'Auto',
+      'lang.name.zh': '中文',
+      'lang.name.en': 'English',
+      'stage.0': 'Lil Liang',
+      'stage.1': 'Jailed',
+      'stage.2': 'Grudge',
+      'stage.3': 'Saint',
+      'stage.4': 'God',
+      'stage.5': 'Ancestor',
     };
+
+    const LANG_CYCLE = ['auto', 'zh', 'en'];
+
+    /** The shell language, narrowed to the two dictionaries this panel ships. */
+    function systemLang(ctx) {
+      try {
+        const active = ctx.locale.getSnapshot().active;
+        return String(active || '').toLowerCase().startsWith('zh') ? 'zh' : 'en';
+      } catch {
+        return 'zh';
+      }
+    }
+
+    /** Resolve the override first, the shell language second. */
+    function resolveLang(mode, ctx) {
+      if (mode === 'zh' || mode === 'en') return mode;
+      return systemLang(ctx);
+    }
+
+    function translator(lang) {
+      const dict = lang === 'en' ? EN : ZH;
+      return (key) => dict[key] || ZH[key] || key;
+    }
 
     const BACKDROP_CSS = `
       .lb-root {
@@ -281,9 +339,34 @@ window.__ModuleLoader__.load({
         line-height: 1;
       }
       .lbd-grip-label {
+        flex: 1 1 auto;
+        min-width: 0;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+      }
+      .lbd-lang {
+        flex: 0 0 auto;
+        min-width: 22px;
+        height: 18px;
+        padding: 0 4px;
+        display: inline-grid;
+        place-items: center;
+        border: 1px solid transparent;
+        border-radius: 5px;
+        background: transparent;
+        color: var(--dsw-alias-label-secondary);
+        font: inherit;
+        font-size: 10px;
+        font-weight: 600;
+        line-height: 1;
+        letter-spacing: .02em;
+        cursor: pointer;
+      }
+      .lbd-lang:hover {
+        color: var(--dsw-alias-label-primary);
+        background: var(--dsw-alias-bg-layer-2);
+        border-color: var(--dsw-alias-border-l1);
       }
       .lbd-chips {
         display: grid;
@@ -490,7 +573,8 @@ window.__ModuleLoader__.load({
      * Drag it by the grip; the position is stored in the shared ladder state.
      */
     function Control({ ctx }) {
-      const t = ctx.locale.bind(NS);
+      // Re-render on every locale revision: the panel follows the shell language
+      // until the user pins one, and late dictionary registrations must land too.
       React.useSyncExternalStore(
         (callback) => ctx.locale.subscribe(callback),
         () => ctx.locale.getSnapshot().revision,
@@ -498,14 +582,23 @@ window.__ModuleLoader__.load({
       );
 
       const ladder = useLadder();
+      const langMode = LANG_CYCLE.includes(ladder.lang) ? ladder.lang : 'auto';
+      const lang = resolveLang(langMode, ctx);
+      const tr = translator(lang);
       const level = clampLevel(ladder.level);
       const position = positionOfLevel(level, ladder.reverse);
       const stage = LEVELS[level];
-      const strengthName = t(`strength.${ladder.strength}`);
-      const valueText = `${stage.name} ${level + 1}${t('badge.level')}`;
+      const stageName = tr(stage.key);
+      const strengthName = tr(`strength.${ladder.strength}`);
+      const valueText = `${stageName} ${level + 1}${tr('badge.level')}`;
       const size = clampNumber(ladder.size, MIN_SIZE, MAX_SIZE);
       const spot = clampPosition(ladder.px, ladder.py, size);
       const collapsed = ladder.collapsed === true;
+
+      const nextLang = () => {
+        const index = LANG_CYCLE.indexOf(langMode);
+        return LANG_CYCLE[(index + 1) % LANG_CYCLE.length];
+      };
 
       const cardRef = React.useRef(null);
       const [drag, setDrag] = React.useState(null);
@@ -627,7 +720,7 @@ window.__ModuleLoader__.load({
           className: 'lbd-chip',
           'data-active': chipLevel === level ? 'true' : 'false',
           onClick: () => update({ level: chipLevel }),
-        }, LEVELS[chipLevel].name));
+        }, tr(LEVELS[chipLevel].key)));
       }
 
       return h('div', {
@@ -636,13 +729,14 @@ window.__ModuleLoader__.load({
         style: cardStyle,
         'data-dragging': drag ? 'true' : 'false',
         'data-collapsed': collapsed ? 'true' : 'false',
+        'data-lang': lang,
         role: 'group',
-        'aria-label': t('dock.label'),
+        'aria-label': tr('dock.label'),
       },
         h('style', null, CONTROL_CSS),
         h('div', {
           className: 'lbd-grip',
-          title: t('drag.title'),
+          title: tr('drag.title'),
           onPointerDown: onGripDown,
           onPointerMove: onGripMove,
           onPointerUp: onGripUp,
@@ -650,12 +744,21 @@ window.__ModuleLoader__.load({
           onDoubleClick: resetPosition,
         },
           h('span', { className: 'lbd-grip-dots', 'aria-hidden': 'true' }, '⠿'),
-          h('span', { className: 'lbd-grip-label' }, collapsed ? stage.name : t('drag.label')),
+          h('span', { className: 'lbd-grip-label' }, collapsed ? stageName : tr('drag.label')),
+          h('button', {
+            type: 'button',
+            className: 'lbd-lang',
+            'data-mode': langMode,
+            title: tr('lang.title'),
+            'aria-label': `${tr('lang.title')} — ${tr(`lang.name.${langMode}`)}`,
+            onPointerDown: (event) => event.stopPropagation(),
+            onClick: () => update({ lang: nextLang() }),
+          }, tr(`lang.${langMode}`)),
           h('button', {
             type: 'button',
             className: 'lbd-collapse',
-            title: collapsed ? t('expand.title') : t('collapse.title'),
-            'aria-label': collapsed ? t('expand.title') : t('collapse.title'),
+            title: collapsed ? tr('expand.title') : tr('collapse.title'),
+            'aria-label': collapsed ? tr('expand.title') : tr('collapse.title'),
             'aria-expanded': collapsed ? 'false' : 'true',
             onPointerDown: (event) => event.stopPropagation(),
             onClick: () => update({ collapsed: !collapsed }),
@@ -669,7 +772,7 @@ window.__ModuleLoader__.load({
           max: TOTAL - 1,
           step: 1,
           value: position,
-          'aria-label': t('slider.aria'),
+          'aria-label': tr('slider.aria'),
           'aria-valuetext': valueText,
           onChange: (event) => update({
             level: levelAtPosition(Number(event.target.value), ladder.reverse),
@@ -677,28 +780,28 @@ window.__ModuleLoader__.load({
         }),
         h('div', { className: 'lbd-meta' },
           h('span', { className: 'lbd-badge' },
-            stage.name,
-            h('span', null, `${level + 1}${t('badge.level')}`),
+            stageName,
+            h('span', null, `${level + 1}${tr('badge.level')}`),
           ),
           h('div', { className: 'lbd-icons' },
             h('button', {
               type: 'button',
               className: 'lbd-icon',
-              title: t('flip.title'),
-              'aria-label': t('flip.title'),
+              title: tr('flip.title'),
+              'aria-label': tr('flip.title'),
               onClick: () => update({ reverse: !ladder.reverse }),
             }, h('span', { 'aria-hidden': 'true' }, '⇄')),
             h('button', {
               type: 'button',
               className: 'lbd-icon',
-              title: `${t('strength.title')}：${strengthName}`,
-              'aria-label': `${t('strength.title')}：${strengthName}`,
+              title: `${tr('strength.title')}: ${strengthName}`,
+              'aria-label': `${tr('strength.title')}: ${strengthName}`,
               onClick: () => update({ strength: (ladder.strength + 1) % 3 }),
             }, h('span', { 'aria-hidden': 'true' }, '◐')),
           ),
         ),
         h('div', { className: 'lbd-field' },
-          h('span', { className: 'lbd-field-label' }, t('size.label')),
+          h('span', { className: 'lbd-field-label' }, tr('size.label')),
           h('input', {
             type: 'range',
             className: 'lbd-range lbd-range-compact',
@@ -706,20 +809,20 @@ window.__ModuleLoader__.load({
             max: MAX_SIZE,
             step: 1,
             value: size,
-            'aria-label': t('size.label'),
+            'aria-label': tr('size.label'),
             'aria-valuetext': String(size),
             onChange: (event) => update({ size: Number(event.target.value) }),
           }),
           h('span', { className: 'lbd-field-value' }, String(size)),
         ),
         h('div', { className: 'lbd-pad-wrap' },
-          h('span', { className: 'lbd-field-label' }, t('position.label')),
+          h('span', { className: 'lbd-field-label' }, tr('position.label')),
           h('div', {
             className: 'lbd-pad',
             ref: padRef,
             role: 'group',
-            'aria-label': t('position.label'),
-            title: t('position.title'),
+            'aria-label': tr('position.label'),
+            title: tr('position.title'),
             onPointerDown: onPadDown,
             onPointerMove: onPadMove,
             onPointerUp: onPadUp,

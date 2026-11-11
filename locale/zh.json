@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "梁圣滑杆背景",
-    "description": "把「梁圣 → 小梁」的 31 级变化图铺成 agent 背景，拖滑杆逐级切换。"
+    "description": "把「小难梁 → 梁祖」六张状态图铺成窗口背景；面板内可切换 中文 / English，也可跟随 DSH 语言。"
   },
   "dock": {
     "label": "梁圣滑杆背景"
