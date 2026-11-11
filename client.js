@@ -196,12 +196,12 @@ window.__ModuleLoader__.load({
       'lang.name.auto': 'Auto',
       'lang.name.zh': '中文',
       'lang.name.en': 'English',
-      'stage.0': 'Lil Liang',
-      'stage.1': 'Jailed',
-      'stage.2': 'Grudge',
-      'stage.3': 'Saint',
-      'stage.4': 'God',
-      'stage.5': 'Ancestor',
+      'stage.0': 'Xiao Nan Liang',
+      'stage.1': 'Lao Liang',
+      'stage.2': 'Liang Zi',
+      'stage.3': 'Liang Sheng',
+      'stage.4': 'Liang Shen',
+      'stage.5': 'Liang Zu',
     };
 
     const LANG_CYCLE = ['auto', 'zh', 'en'];
@@ -291,6 +291,11 @@ window.__ModuleLoader__.load({
         gap: 0;
         padding: 7px 9px;
       }
+      /* Pinyin stage names are longer than the Chinese two/three characters, so
+         the English panel goes single-column and takes a little more width. */
+      .lbd-card[data-lang="en"] { width: 190px; }
+      .lbd-card[data-lang="en"] .lbd-chips { grid-template-columns: minmax(0, 1fr); }
+      .lbd-card[data-lang="en"][data-collapsed="true"] { width: 152px; }
       .lbd-card[data-collapsed="true"] .lbd-chips,
       .lbd-card[data-collapsed="true"] .lbd-range,
       .lbd-card[data-collapsed="true"] .lbd-meta,

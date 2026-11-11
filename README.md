@@ -76,16 +76,18 @@ A  →  中  →  EN  →  A …
 - **中文 / English**：固定面板语言，覆盖 DSH 的全局设置，适合系统是英文但想用中文名字，或者反过来
 - 选择存在 `localStorage`，刷新、重启都记得
 
-六级状态名在两种语言下的对照（英文是给窄面板用的短标签，右侧是原意）：
+六级状态名在两种语言下的对照（英文界面保留拼音，这些梗翻译就没了；右侧是原意）：
 
 | 等级 | 中文 | English | 含义 |
 |---|---|---|---|
-| 1 | 小难梁 | Lil Liang | 刚入门的梁 |
-| 2 | 牢梁 | Jailed | 被关起来的梁 |
-| 3 | 梁子 | Grudge | 「结梁子」的梁 |
-| 4 | 梁圣 | Saint | 封圣的梁 |
-| 5 | 梁神 | God | 封神的梁 |
-| 6 | 梁祖 | Ancestor | 祖宗的梁 |
+| 1 | 小难梁 | Xiao Nan Liang | 刚入门的梁 |
+| 2 | 牢梁 | Lao Liang | 被关起来的梁 |
+| 3 | 梁子 | Liang Zi | 「结梁子」的梁 |
+| 4 | 梁圣 | Liang Sheng | 封圣的梁 |
+| 5 | 梁神 | Liang Shen | 封神的梁 |
+| 6 | 梁祖 | Liang Zu | 祖宗的梁 |
+
+拼音比中文名长，所以英文面板会把六个状态排成一列（面板也略宽一点），中文面板仍是两列。
 
 ### 数据
 
@@ -149,29 +151,32 @@ dsh plugin --profile desktop remove dsh-liang-backdrop
 The panel opens against the left edge, vertically centred. Drag it by the `⠿` grip, double-click to reset.
 
 ```
-⠿ Drag                        A  ▾
-┌────────┬────────┐
-│ Ancestor│  God   │  ← six stages, click to switch
-│ Saint  │ Grudge │
-│ Jailed │Lil Liang│
-└────────┴────────┘
-━━━━━●━━━━━                    ← level slider
-Saint 4/6              ⇄  ◐
-Size ━━━●━━ 42                 ← backdrop size (vmin)
+⠿ Drag                            A  ▾
+┌──────────────┐
+│ Liang Zu     │  ← six stages, click to switch
+│ Liang Shen   │
+│ Liang Sheng  │
+│ Liang Zi     │
+│ Lao Liang    │
+│ Xiao Nan Liang│
+└──────────────┘
+━━━━━●━━━━━                          ← level slider
+Liang Sheng 4/6            ⇄  ◐
+Size ━━━●━━ 42                       ← backdrop size (vmin)
 Position ┌─┬─┬─┐
-         │ │ │●┘              ← drag the knob, the portrait follows
+         │ │ │●┘                    ← drag the knob, the portrait follows
          └─┴─┴─┘
 ```
 
 | Control | What it does |
 |---|---|
-| Stage chips / slider | Six stages: Lil Liang → Jailed → Grudge → Saint → God → Ancestor |
+| Stage chips / slider | Six stages: Xiao Nan Liang → Lao Liang → Liang Zi → Liang Sheng → Liang Shen → Liang Zu |
 | `A` / `中` / `EN` | Panel language: Auto → 中文 → English |
-| `⇄` | Reverse the order (left = Ancestor, right = Lil Liang by default) |
+| `⇄` | Reverse the order (top = Liang Zu, bottom = Xiao Nan Liang by default) |
 | `◐` | Backdrop strength: faint 0.35 / medium 0.55 / strong 0.80 |
 | Size | 14–76 in `vmin` (% of the viewport's short side), default 42 |
 | Position | Drag the knob anywhere; the centre is clamped by size so the portrait always stays on screen |
-| `▾` / `▸` | Collapse / expand (collapsed shows just `⠿ Saint ▸`) |
+| `▾` / `▸` | Collapse / expand (collapsed shows just `⠿ Liang Sheng ▸`) |
 
 The backdrop hides itself below 640 px width or 520 px height.
 
@@ -188,16 +193,16 @@ Auto    中文    English   back to Auto
 - **中文 / English** pins the panel language and overrides the global setting — handy when the app is in English but you want the original Chinese names, or the other way round
 - The choice is stored in `localStorage`, so it survives reloads and restarts
 
-Stage names in both languages (the English ones are deliberately short to fit the narrow panel):
+Stage names stay in pinyin in the English UI — the puns do not survive translation — so the English panel lists them in one column instead of two:
 
 | Level | 中文 | English | Meaning |
 |---|---|---|---|
-| 1 | 小难梁 | Lil Liang | the rookie |
-| 2 | 牢梁 | Jailed | locked up |
-| 3 | 梁子 | Grudge | "to hold a grudge" |
-| 4 | 梁圣 | Saint | canonised |
-| 5 | 梁神 | God | deified |
-| 6 | 梁祖 | Ancestor | the patriarch |
+| 1 | 小难梁 | Xiao Nan Liang | the rookie |
+| 2 | 牢梁 | Lao Liang | locked up |
+| 3 | 梁子 | Liang Zi | "to hold a grudge" |
+| 4 | 梁圣 | Liang Sheng | canonised |
+| 5 | 梁神 | Liang Shen | deified |
+| 6 | 梁祖 | Liang Zu | the patriarch |
 
 ### Stored state
 
