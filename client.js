@@ -158,11 +158,9 @@ window.__ModuleLoader__.load({
       'strength.1': '中',
       'strength.2': '浓',
       'badge.level': '/6 级',
-      'lang.title': '语言：自动（跟随 DSH）→ 中文 → English',
-      'lang.auto': 'A',
+      'lang.title': '语言：点击切换 中文 / English（未点过时跟随 DSH）',
       'lang.zh': '中',
       'lang.en': 'EN',
-      'lang.name.auto': '自动',
       'lang.name.zh': '中文',
       'lang.name.en': 'English',
       'stage.0': '小难梁',
@@ -189,11 +187,9 @@ window.__ModuleLoader__.load({
       'strength.1': 'Medium',
       'strength.2': 'Strong',
       'badge.level': '/6',
-      'lang.title': 'Language: Auto (follow DSH) → 中文 → English',
-      'lang.auto': 'A',
+      'lang.title': 'Language: click to switch 中文 / English (follows DSH until picked)',
       'lang.zh': '中',
       'lang.en': 'EN',
-      'lang.name.auto': 'Auto',
       'lang.name.zh': '中文',
       'lang.name.en': 'English',
       'stage.0': 'Xiao Nan Liang',
@@ -203,8 +199,6 @@ window.__ModuleLoader__.load({
       'stage.4': 'Liang Shen',
       'stage.5': 'Liang Zu',
     };
-
-    const LANG_CYCLE = ['auto', 'zh', 'en'];
 
     /** The shell language, narrowed to the two dictionaries this panel ships. */
     function systemLang(ctx) {
@@ -587,8 +581,7 @@ window.__ModuleLoader__.load({
       );
 
       const ladder = useLadder();
-      const langMode = LANG_CYCLE.includes(ladder.lang) ? ladder.lang : 'auto';
-      const lang = resolveLang(langMode, ctx);
+      const lang = resolveLang(ladder.lang, ctx);
       const tr = translator(lang);
       const level = clampLevel(ladder.level);
       const position = positionOfLevel(level, ladder.reverse);
@@ -599,11 +592,6 @@ window.__ModuleLoader__.load({
       const size = clampNumber(ladder.size, MIN_SIZE, MAX_SIZE);
       const spot = clampPosition(ladder.px, ladder.py, size);
       const collapsed = ladder.collapsed === true;
-
-      const nextLang = () => {
-        const index = LANG_CYCLE.indexOf(langMode);
-        return LANG_CYCLE[(index + 1) % LANG_CYCLE.length];
-      };
 
       const cardRef = React.useRef(null);
       const [drag, setDrag] = React.useState(null);
@@ -753,12 +741,12 @@ window.__ModuleLoader__.load({
           h('button', {
             type: 'button',
             className: 'lbd-lang',
-            'data-mode': langMode,
+            'data-lang': lang,
             title: tr('lang.title'),
-            'aria-label': `${tr('lang.title')} — ${tr(`lang.name.${langMode}`)}`,
+            'aria-label': `${tr('lang.title')} — ${tr(`lang.name.${lang}`)}`,
             onPointerDown: (event) => event.stopPropagation(),
-            onClick: () => update({ lang: nextLang() }),
-          }, tr(`lang.${langMode}`)),
+            onClick: () => update({ lang: lang === 'zh' ? 'en' : 'zh' }),
+          }, tr(`lang.${lang}`)),
           h('button', {
             type: 'button',
             className: 'lbd-collapse',

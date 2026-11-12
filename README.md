@@ -54,7 +54,7 @@ dsh plugin --profile desktop remove dsh-liang-backdrop
 | 控件 | 作用 |
 |---|---|
 | 状态按钮 / 滑杆 | 6 级切换：小难梁 → 牢梁 → 梁子 → 梁圣 → 梁神 → 梁祖 |
-| `A` / `中` / `EN` | 面板语言：自动 → 中文 → English |
+| `中` / `EN` | 面板语言：中文 ⇄ English |
 | `⇄` | 反转方向（默认左 = 梁祖 → 右 = 小难梁） |
 | `◐` | 背景浓度：淡 0.35 / 中 0.55 / 浓 0.80 |
 | 大小 | 14–76，单位 `vmin`（视口短边的百分比），默认 42 |
@@ -65,16 +65,16 @@ dsh plugin --profile desktop remove dsh-liang-backdrop
 
 ### 语言
 
-面板右上角那颗很窄的按钮就是语言开关，点一下走一格：
+面板右上角那颗很窄的按钮就是语言开关，只在两档之间切：
 
 ```
-A  →  中  →  EN  →  A …
-自动    中文    English   回到自动
+中  ⇄  EN
+中文    English
 ```
 
-- **自动**：跟随 DSH 的语言设置（`设置 → 通用 → 语言`），切换 DSH 语言时面板立刻跟着变
-- **中文 / English**：固定面板语言，覆盖 DSH 的全局设置，适合系统是英文但想用中文名字，或者反过来
-- 选择存在 `localStorage`，刷新、重启都记得
+- 没点过之前，面板跟随 DSH 的语言设置（`设置 → 通用 → 语言`），按钮上显示的就是当前生效的语言
+- 点一下锁定成另一种语言，再点再切回来，覆盖 DSH 的全局设置——适合系统是英文但想用拼音名字，或者反过来
+- 选择存在 `localStorage`，刷新、重启都记得；想恢复「跟随 DSH」，把 `lang` 字段删掉或改成 `"auto"`
 
 六级状态名在两种语言下的对照（英文界面保留拼音，这些梗翻译就没了；右侧是原意）：
 
@@ -99,7 +99,7 @@ A  →  中  →  EN  →  A …
   "lang": "auto" }
 ```
 
-`px` / `py` 是图片中心在窗口里的比例坐标，`x` / `y` 是控制面板的像素坐标（`null` = 默认位置），`lang` 是 `auto` / `zh` / `en`。老版本没有 `lang` 字段时按 `auto` 处理。
+`px` / `py` 是图片中心在窗口里的比例坐标，`x` / `y` 是控制面板的像素坐标（`null` = 默认位置），`lang` 是 `auto` / `zh` / `en`。`auto` 只出现在没点过语言按钮的时候（跟随 DSH），点过之后就是固定的 `zh` 或 `en`；老版本没有 `lang` 字段时按 `auto` 处理。
 
 ### 素材与授权
 
@@ -151,7 +151,7 @@ dsh plugin --profile desktop remove dsh-liang-backdrop
 The panel opens against the left edge, vertically centred. Drag it by the `⠿` grip, double-click to reset.
 
 ```
-⠿ Drag                            A  ▾
+⠿ Drag                           EN  ▾
 ┌──────────────┐
 │ Liang Zu     │  ← six stages, click to switch
 │ Liang Shen   │
@@ -171,7 +171,7 @@ Position ┌─┬─┬─┐
 | Control | What it does |
 |---|---|
 | Stage chips / slider | Six stages: Xiao Nan Liang → Lao Liang → Liang Zi → Liang Sheng → Liang Shen → Liang Zu |
-| `A` / `中` / `EN` | Panel language: Auto → 中文 → English |
+| `中` / `EN` | Panel language: 中文 ⇄ English |
 | `⇄` | Reverse the order (top = Liang Zu, bottom = Xiao Nan Liang by default) |
 | `◐` | Backdrop strength: faint 0.35 / medium 0.55 / strong 0.80 |
 | Size | 14–76 in `vmin` (% of the viewport's short side), default 42 |
@@ -182,16 +182,16 @@ The backdrop hides itself below 640 px width or 520 px height.
 
 ### Language
 
-The narrow button in the panel header cycles the panel language:
+The narrow button in the panel header toggles between two languages only:
 
 ```
-A  →  中  →  EN  →  A …
-Auto    中文    English   back to Auto
+中  ⇄  EN
+中文    English
 ```
 
-- **Auto** follows the DSH language (`Settings → General → Language`) and updates live when you switch it
-- **中文 / English** pins the panel language and overrides the global setting — handy when the app is in English but you want the original Chinese names, or the other way round
-- The choice is stored in `localStorage`, so it survives reloads and restarts
+- Until you touch it, the panel follows the DSH language (`Settings → General → Language`) and the button shows whichever language is in effect
+- One click pins the other one, another click flips back; the pin overrides the global setting — handy when the app is English but you want the pinyin names, or the other way round
+- The choice is stored in `localStorage`, so it survives reloads and restarts; to go back to "follow DSH", delete `lang` or set it to `"auto"`
 
 Stage names stay in pinyin in the English UI — the puns do not survive translation — so the English panel lists them in one column instead of two:
 
@@ -214,7 +214,7 @@ Everything lives in `localStorage` under `dsh.liang-backdrop:v1`:
   "lang": "auto" }
 ```
 
-`px` / `py` are the portrait centre as fractions of the viewport, `x` / `y` the panel position in pixels (`null` = default), and `lang` is `auto` / `zh` / `en`. Older entries without `lang` are read as `auto`.
+`px` / `py` are the portrait centre as fractions of the viewport, `x` / `y` the panel position in pixels (`null` = default), and `lang` is `auto` / `zh` / `en`. `auto` only exists until you touch the language button (follow DSH); after that it is pinned to `zh` or `en`. Older entries without `lang` are read as `auto`.
 
 ### Assets & license
 
